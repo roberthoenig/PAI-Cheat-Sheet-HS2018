@@ -10,7 +10,26 @@ $P(X_A|X_B=x_B)=N(\mu_{A|B}, \Sigma_{A|B})$ is Gaussian:\\
 $\mu_{A|B}=\mu_A+\Sigma_{AB}\Sigma^{-1}_{BB}(x_B-\mu_B)$\\
 $\Sigma_{A|B}=\Sigma_{AA}-\Sigma_{AB}\Sigma^{-1}_{BB}\Sigma_{BA}$
 
-\subsection{Convex / Jensen's inequality}
-$\text{g(x) is convex} \Leftrightarrow x_1,x_2 \in \mathbb{R}, \lambda \in [0,1]: g''(x) > 0$\\
-$g(\lambda x_1 + (1-\lambda) x_2) \leq \lambda g(x_1) + (1-\lambda) g(x_2)$
-$\varphi(\operatorname{E}[X]) \leq  \operatorname{E}[\varphi(X)]$
+\section{Bayesian Linear Regression}
+\textbf{Prior:} $\rvw\sim\mathcal{N}(\mathbf{0},\Lambda^{-1})$\\
+\textbf{Posterior:} $p(\rvw;\mathbf{X},\mathbf{y}) = \mathcal{N}(\rvw; \bar\mu, \bar\Sigma)$ where\\
+$\bar\mu = (\mathbf{X}^T\mathbf{X} +\sigma^2\bm{\Lambda})^{-1}\mathbf{X}^T\mathbf{y}$\\
+$\bar\Sigma = \sigma^2(\mathbf{X}^T\mathbf{X} +\sigma^2\bm{\Lambda})^{-1}$\\
+\textbf{Pred.:}
+\mbox{$y^* = {\vx^*}^T\rvw + \epsilon\sim \mathcal{N}({\vx^*}^T\bar\mu, \underbrace{{\vx^*}^T\bar\Sigma{\vx^*}}_\text{\color{purple}epistemic}+\underbrace{\sigma^2}_\text{\color{purple}aleatoric})$}
+\textbf{\color{gray}Pred:}
+$p(y^*|\rvx^*,\mX,\rvy) = \int p(y^*|\rvx^*,\rvw)p(\rvw|\mX,\rvy) d\rvw$
+
+\section{Kalman Filters}
+\textbf{Transition model}:
+\mbox{$P(\rvx_{t+1}|\rvx_t)=\mathcal{N}(\rvx_{t+1};F\rvx_t, \Sigma_x)$}\\
+\textbf{Sensor model}:
+$P(\rvy_{t}|\rvx_t)=\mathcal{N}(\rvy_{t};H\rvx_t, \Sigma_y)$\\
+\textbf{Conditioning:} $P(\rvx_t|\rvy_{1\ldots t}) = \mathcal{N}(\rvx_t;\mu_t, \Sigma_t)$\\
+\textbf{Prediction:} $P(\rvx_{t+1}|\rvy_{1\ldots t}) = \mathcal{N}(\rvx_{t+1};F\mu_t, \Sigma_t + \Sigma_x)$\\
+\textbf{Kalman gain}:
+$K_{t+1}=$\\$(F\Sigma_t F^T+\Sigma_x)H^T(H(F\Sigma_t F^T+\Sigma_x)H^T+ \Sigma_y)^{-1}$\\
+\textbf{Kalman update}:\\
+$\mu_{t+1}=F\mu_t+K_{t+1}(\rvy_{t+1}-HF\mu_t)$\\
+$\Sigma_{t+1}=(I-K_{t+1}H)(F\Sigma_tF^T + \Sigma_x)$\\
+% asdf

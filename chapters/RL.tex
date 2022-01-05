@@ -26,11 +26,11 @@ $Q(x,a) \leftarrow (1-\alpha_t)Q(x,a) + \alpha_t(r+\gamma \max_{a'}Q(x', a'))$\\
 \textbf{Optimistic Q learning:}\\
 Initialize: $Q(x,a)=\frac{R_{max}}{1-\gamma}\prod_{t=1}^{T_{init}}(1-\alpha_t)^{-1}$\\
 Same convergence time as with $R_{max}$. Memory $O(|X||A|)$. Comp: $O(|A|)$.\\
-\textbf{Parametric Q-function approximation}: $Q(x,a;\theta)=\theto^T\phi (x,a)$ to scale to large state spaces. (You can use Deep NN here!)\\
+\textbf{Parametric Q-function approximation}: $Q(x,a;\theta)=\theta^T\phi (x,a)$ to scale to large state spaces. (You can use Deep NN here!)\\
 \textbf{SGD for ANNs}: initialize weights. For t = 1,2..., pick a data point (x,y) uniformly at random. Take step in negative gradient direction. (In practise, mini-batches).\\
 \textbf{Deep Q Networks}: use CNN to approx Q function.
 % Use "experience relay". Clone network to maintain constant "target" values across episodes:
-$ L(\theta)=\sum_{(x,a,r,x')\in D}(r+\gamma\underset{a'}{max}Q(x',a';\theto^{old})-Q(x,a;\theto))^2$ \textbf{Double DQN:} current network for evaluating argmax (too optimistic, and you remove $\theta^{old}$ and put $\theta$).
+$ L(\theta)=\sum_{(x,a,r,x')\in D}(r+\gamma\underset{a'}{max}Q(x',a';\theta^{old})-Q(x,a;\theta))^2$ \textbf{Double DQN:} current network for evaluating argmax (too optimistic, and you remove $\theta^{old}$ and put $\theta$).
 
 \subsection{Gaussian processes}
 A GP is an (infinite) set of random variables (RV), indexed by some set X, i.e., for each x in X, there is a RV $Y_x$ where there exists functions $\mu : X \rightarrow \mathbb{R}$ and $K: X \times X \rightarrow \mathbb{R}$ such that for all: $A \in X, \quad A={x_1,...x_k}$, it holds that $Y_A=[Y_{x_1},...,Y_{x_k}] \sim N(\mu_a, \Sigma_{AA})$, where: $\Sigma_{AA} =$ matrix with all combinations of $K(x_i, x_j)$.
