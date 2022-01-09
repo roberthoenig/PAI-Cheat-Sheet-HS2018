@@ -10,6 +10,23 @@ $P(X_A|X_B=x_B)=N(\mu_{A|B}, \Sigma_{A|B})$ is Gaussian:\\
 $\mu_{A|B}=\mu_A+\Sigma_{AB}\Sigma^{-1}_{BB}(x_B-\mu_B)$\\
 $\Sigma_{A|B}=\Sigma_{AA}-\Sigma_{AB}\Sigma^{-1}_{BB}\Sigma_{BA}$
 
+\section{Bayesian Learning}
+\textbf{Prior:} $p(\theta)$
+\textbf{Likelihood:} $p(\rvy|\mX,\theta) = \prod p(y_i|x_i,\theta)$
+\textbf{Posterior:} $p(\theta|\rvy,\mX) = \frac{1}{Z}p(\theta)\prod p(y_i|x_i, \theta)$ with $Z = \int p(\theta)\prod p(y_i|x_i, \theta) d\theta$.
+\textbf{Predictions:} $p(y^*|x^*,\mX,\rvy) = \int p(y^*|x^*,\theta)p(\theta|\mX, \rvy) d\theta$. 
+
+\section{Bayesian Neural Networks}
+\textbf{Prior:} $p(\theta) = \mathcal{N}(0, \sigma^2\mI)$.\\
+\textbf{Likelihood:} $p(y|\vx, \theta) = \mathcal{N}(\mu_\theta(\vx), \sigma^2_\theta(\vx))$. ($\sigma^2_\theta(\vx)$ non-constant $\color{black}$ iff het.scd. noise).
+\textbf{Predictions:} \mbox{$p(y^*|\mX,\vy,\vx^*) \approx \frac{1}{m}\sum\mathcal{N}(y^*;\mu_{\theta_m}(\vx^*), \sigma_{\theta_m}^2(\vx^*))$ (GMM).} \mbox{$\Var(y^*|\mX,\rvy,x^*) = {\color{red}\E[\Var(y^*|x^*,\theta)]} + {\color{blue}\Var(\E[y^*|x^*,\theta])}$} $\approx {\color{red}\overset{aleatoric}{\frac{1}{m}\sum\sigma^2_{\theta_m}(\vx^*)}} + {\color{blue}\overset{epistemic}{\frac{1}{m}\sum(\mu_{\theta_m}(\vx^*)-\bar{\mu}_{\theta_m}(\vx^*))^2}}$\\
+\textbf{Variational Inference:} Approx. $p(\theta|\rvy) \approx q_\lambda(\theta)$. Minimize $\mathcal{L}(\lambda) = \mathrm{KL}(q_\lambda||p(\cdot|\rvy)) = \E_{\theta\sim q_\lambda}[\log p(\rvy|\theta)] - \mathrm{KL}(q_\lambda||p(\cdot)) = $ \textbf{ELBO}. \textbf{Bayes-by-backprop:} Min. $\mathcal{L}(\lambda)$ with SGD + reparam.\\
+\textbf{MCMC:} Use MALA / SGLD to sample $\theta^{(t)} \sim p(\theta|\rvy)$. \emph{Problem:} Storing many $\theta^{(t)}$ for multiple preds. expensive. \emph{Solution:} Approximate $\theta^{t}_i \sim \mathcal{N}(\textrm{sample mean, var})$.\\
+\textbf{Dropout as BNN:} Use posterior $q_\lambda(\theta) = \prod q_{\lambda_i}(\theta_i)$ with $q_{\lambda_i}(\theta_i) = p\delta_0(\theta_i) + (1-p)\delta_{\lambda_i}(\theta_i)$.
+\textbf{Probabilistic ensembles:} Compute $\theta^{(t)}$ using MAP with bootstrapping.
+\textbf{Calibration:} Perfectly calibrated iff $\forall p.\,P(\hat{Y}=Y|\hat{P}=p) = p$, where $Y$ is the real class and $\hat{Y}, \hat{P}$ is the NN output. \textbf{Expected Calibration Error:} $\E[|P(\hat{Y}=Y|\hat{P}) - \hat{P}|]$.
+\textbf{Max. Calibration Error:} $\max_p |P(\hat{Y}=Y|\hat{P}=p) - p|$.
+
 \section{Bayesian Linear Regression}
 \textbf{Prior:} $\rvw\sim\mathcal{N}(\mathbf{0},\Lambda^{-1})$\\
 \textbf{Posterior:} $p(\rvw;\mathbf{X},\mathbf{y}) = \mathcal{N}(\rvw; \bar\mu, \bar\Sigma)$ where\\
