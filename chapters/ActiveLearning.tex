@@ -1,0 +1,6 @@
+\section{Active Learning}
+\textbf{Assume:} $f\sim\mathrm{GP}(\mu, K)$, $\forall S.\,Y_S = f(S) + \epsilon$, $\epsilon\sim\mathcal{N}(0,\sigma_n^2\mI)$.\\
+\textbf{Goal:} Observe $S\subset D$ with max. utility, i.e. maximize $F(S) = I(f, Y_S) = H(Y_S) - H(Y_S|f) = H(Y_S) - H(Y_S|f_S) = \frac{1}{2}\ln|\mI+\sigma_n^{-2}K_S|$. \emph{NP-hard!}
+\textbf{Greedy algorithm:} $x_{t+1} = \argmax_x F(S_t\cup \{x\}) = \argmax_x \frac{1}{2}(1+\sigma_{x|S_t}^2/{\color{gray}\sigma_n^2})$ (W/o $\color{gray}\sigma_n^2$ get \textbf{uncertainty sampling}). Greedy is constant-factor approx. $F(S_t) \geq (1-\frac{1}{e})\max_{S'\subset D: |S| \leq t} F(S')$ due to \textbf{monotone submodularity:} $\forall x, A\subset B.\,F(A\cup\{x\}) - F(A) \geq F(B\cup\{x\}) - F(B)$.\\
+\textbf{Classification with BALD:} Greedily choose $x_{t+1} = \argmax_{x'}F(S\cup\{x'\}) = \argmax_{x'}F(S\cup\{x'\})-F(S) = 
+\argmax_{x'}I(\theta;Y_x'|S) = H(Y_{x'}|S=S) - {\color{gray}H(Y_{x'};\theta|S=S,\theta)}$ (w/o ${\color{gray}H(Y_{x'};\theta|S=S,\theta)}$ becomes \textbf{det. BALD}). Approx. with VI / MCMC.

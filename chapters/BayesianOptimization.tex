@@ -1,0 +1,9 @@
+\section{Bayesian Optimization}
+\textbf{Task:} Given $f:D\to\mathbb{R}$, {\color{red} expensive to sample}, choose inputs $x_1,\ldots,x_T$, observing
+$y_i = f(x_i) + \epsilon_i$, to minimize the \textbf{cumulative regret} $R_T = \frac{1}{T}\sum_{i\leq T}(f(x^*) - f(x_i))$. If $R_T$ is \textbf{sublinear} ($\frac{R_T}{T} \to 0$) then $\max_{t\leq T}f(x_t) \to f(x^*)$.\\
+\textbf{Upper confidence sampling (UCB):}\\
+Choose $x_{t+1} = \argmax_x \mu_t(x) + \beta_t\sigma_t(x)$. \emph{(Solve with Lipschitz opt. (low-D) or gradient ascent (high-D))}\\
+If $f\sim GP$ and $\beta_t$ chosen "correctly", then $R_T = \mathcal{O^*}(\frac{\gamma_T}{T})$ where $\gamma_T = \max_{|S|\leq T}I(f; y_S)$. \emph{Bounds on $\gamma_T$ for different kernels:} Independent: $\gamma_T = O(T)$, Linear: $\gamma_T = O(d\log T)$, Squared-exponential: $\gamma_T = O((\log T)^{d+1})$, Matern ($\nu>\frac{1}{2}$): $\gamma_T = O(T^{\frac{d}{2\nu+d}}{(\log T)^{\frac{2\nu}{2\nu+d}}}$)\\
+\textbf{Thompson sampling:}\\
+Choose $x_{t+1} = \argmax_x \tilde{f}(x)$ with $\tilde{f} \sim P(f|y_{1:t})$.\\
+Similar regret bounds as for UCB.
