@@ -44,11 +44,3 @@ $b_{t+1}(x') = P(X_{t+1}=x'|y_{1:t+1},a_{1:t})=$\\$\frac{1}{Z}\sum_xb_t(x)P(y_{t
 Reward function: $r(b_t, a_t)=\sum_x b_t(x)r(x,a_t)$
 \emph{Solve using \textbf{dynamic programming} or \textbf{policy gradients}}.
 
-\subsection{Example of approx. solution to POMDPs: Policy gradients}
-- Assume parameterized policy: $\pi(b)=\pi(b;\theta)$\\
-- For each parameter $\theta$ the policy induces a Markov chain\\
-- Can compute expected reward $J(\theta)$ by sampling.\\
-- Find optimal parameters through search (gradient ascent):
-$\theta^* = \underset{\theta}{arg max}\quad J(\theta)$
-
-

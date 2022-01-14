@@ -17,11 +17,15 @@ $H(X|Y) = \E_{y\sim p(y)}[X|Y=y]$.\\
 If $X\sim\mathcal{N}(\mu, \Sigma)$ then $H(X) = \frac{1}{2}\ln(2\pi e)^d|\Sigma|$.\\
 If $X\sim\mathcal{N}(\mu, \Sigma)$, $Y = X + \epsilon$, $\epsilon\sim\mathcal{N}(0,\sigma^2\mI)$, then $I(X;Y) = \frac{1}{2}\ln|\mI+\sigma^{-2}\Sigma|$.
 
+\section{Formulas}
+\textbf{Hoeffding's inequality:} I.i.d. $(X_i)\sim X\in[0,C]$ satisfy $P(|\E[X] - \frac{1}{n}\sum_{i\leq n}X_i|>\epsilon) \leq 2\exp(-2n\frac{\epsilon^2}{C^2})$.
+
 \section{Bayesian Learning}
 \textbf{Prior:} $p(\theta)$
 \textbf{Likelihood:} $p(\rvy|\mX,\theta) = \prod p(y_i|x_i,\theta)$
 \textbf{Posterior:} $p(\theta|\rvy,\mX) = \frac{1}{Z}p(\theta)\prod p(y_i|x_i, \theta)$ with $Z = \int p(\theta)\prod p(y_i|x_i, \theta) d\theta$.
 \textbf{Predictions:} $p(y^*|x^*,\mX,\rvy) = \int p(y^*|x^*,\theta)p(\theta|\mX, \rvy) d\theta$. 
+
 
 \section{Bayesian Neural Networks}
 \textbf{Prior:} $p(\theta) = \mathcal{N}(0, \sigma^2\mI)$.\\

@@ -1,5 +1,27 @@
 \section{Reinforcement Learning}
-
+\emph{Unknown $r(x,a)$, $P(x'|x,a)$.}
+\subsection{Model-based, $|A|$ small, $|X|$ small}
+\mbox{1. Est $P(x'|x,a) = \frac{\#(x',x,a)}{\#(x,a)}$,
+$r(x,a) = \frac{1}{\#(x,a)}\smashoperator{\sum_{t:(x_t,a_t)=(x,a)}}r_t$.}\\
+2. Update $\pi$.\\
+3. Explore \& exploit:\\
+3.1 ($\color{black}\mathbf{\epsilon}$\textbf{-greedy}): $a_t=\mathrm{Cat}_{[1-\epsilon_t, \epsilon_t]}[\pi^*(x_t),\mathrm{rand}]$. CV a.s. if $\sum \epsilon_t = \infty$, $\sum \epsilon^2_t < \infty$.\\
+3.2 ($\color{black}\mathbf{R_{\max}}$): Set $r(x,a)=R_{\max}$, $P(x^*|x,a)=1$, $r(x^*,a)=R_{\max}$. Update with empirical estimates after collecting $n_{x,a} \geq \frac{R_{\max}^2}{2\epsilon^2}\log\frac{2}{\delta}$ samples. \emph{Every $T$ steps, w.h.p. $R_{\max}$ yields near-opt. reward or visits $\geq 1$ unknown state-action pair.\\}
+\emph{With $p=1-\delta$ $R_{\max}$ reaches $\epsilon$-opt. policy in $O(\mathrm{poly}(|X|,|A|,T,\frac{1}{\epsilon},\log\frac{1}{\delta}, R_{\max})$)}
+\subsection{Model-free, $|A|$ small, $|X|$ small}
+\textbf{TD-Learning:} \emph{Goal:} Find $V^\pi$ given $\pi$.\\
+\emph{Algorithm:} 1. Follow $\pi$ to get $(x,a,r,x')_t$. 2.Update $\hat{V}^\pi(x) \leftarrow (1-\alpha_t)\hat{V}^\pi(x_t) + \alpha_t (r + \gamma\hat{V}^\pi(x_t'))$.
+\emph{If $\sum\alpha_t=\infty$, $\sum\alpha_t^2<\infty$ and every (x,a) is visited $\color{black}\infty$-ly often, then a.s. $\hat{V}^\pi \to V^\pi$.}\\
+\textbf{{\color{gray} Optimistic} Q-Learning:} {\color{gray} \emph{\textbf{Init:}} $\color{gray}\hat{Q}^*(x,a) = \frac{R_{\max}}{1-\gamma}\prod_{t=1}^{T_\mathrm{init}}(1-\alpha_t)^{-1}$}.
+\emph{\color{gray}\textbf{Explore:}} $\color{gray}a_t \in \argmax_a \hat{Q}^*(x,a)$. \emph{\textbf{Update:}} $\hat{Q}^*(x_t,a_t) \leftarrow (1-\alpha_t)\hat{Q}^*(x_t,a_t) + \alpha_t(r_t + \gamma(\max_a\hat{Q}^*(x'_t,a)$.\\
+\emph{If $\sum\alpha_t=\infty$, $\sum\alpha_t^2<\infty$ and every (x,a) is visited $\color{black}\infty$-ly often, then a.s. $\hat{Q}^* \to Q^*$.}\\
+\emph{\color{gray} With $\color{gray}p=1-\delta$ Optimistic Q-Learning reaches $\epsilon$-opt. policy in $O(\mathrm{poly}(|X|,|A|,T,\frac{1}{\epsilon},\log\frac{1}{\delta})$)}
+\subsection{Model-free, $|A|$ small, $|X|$ large}
+\textbf{Deep Q-Learning:} Define $Q(x,a;\theta) \approx Q^*(x,a)$.
+\textbf{\emph{Training:}} Minimize $ l_2(x,a,r,x',\theta) = \frac{1}{2}\delta^2$ with $\delta = Q(x,a;\theta) - (r+\gamma\max_{a'}Q(x',a';\theta_\mathrm{old}))$.\\
+\emph{Update:} $\theta_{t+1} \leftarrow \theta_t - \alpha_t\delta\nabla_{\theta_t}Q(x,a;\theta_t)$.\\
+\textbf{Experience Replay:} Collect $D=\{(x,a,r,x')\}$, fix $\theta_\mathrm{old}$. Minimize $L(\theta) = \sum_{d\in D}l_2(d,\theta)$.
+\textbf{Double DQN:} Reduce \textbf{maximization bias} by changing $\max_{a'}Q(x',a';\theta_\mathrm{old}))$ in $\delta$ to $\max_{a'}Q(x',a';\theta))$. 
 \subsection{Model-based RL}
 
 \subsubsection{$\epsilon$ greedy}
