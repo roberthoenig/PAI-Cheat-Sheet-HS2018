@@ -39,7 +39,7 @@ $\theta_Q \mathrel{{-}{=}} \eta_t(Q_{\theta_Q}(x,a)-r-\gamma Q_{\theta_Q}(x',\pi
 (sim. to DQN, critic update non-episodic.)
 \textbf{A2C:} Add baseline $-V_{\theta_V}(x)$ to get
 $\theta_\pi \mathrel{{+}{=}} \eta_t A_{\theta_A}(x,a)\nabla\log\pi_{\theta_\pi}(a|x)$ where $A_{\theta_A}(x,a) = Q_{\theta_Q}(x,a) - V_{\theta_V}(x)$ is the \textbf{advantage function} ($A^\pi(x,a) = Q^{\pi}(x,a)-\E_{a'\sim\pi(x)}(Q^{\pi}(x,a'))$).\\
-\textbf{TRPO\&PPO}: $\theta_{k+1} = \argmax_\theta \E_{(x,a)\sim\pi_{\theta_k}}[\frac{\pi_\theta(a|x)}{\pi_{\theta_k}(a|x)}A^{\pi_{\theta_k}}(x,a)]$, $\mathrm{KL}(\theta||\theta_k)\leq\delta$ (mildly off-policy).\\
+\textbf{TRPO\&PPO}: For $\mathrm{KL}(\theta||\theta_k)\leq\delta$, find $\theta_{k+1} = \argmax_\theta \E_{(x,a)\sim\pi_{\theta_k}}[\frac{\pi_\theta(a|x)}{\pi_{\theta_k}(a|x)}A^{\pi_{\theta_k}}(x,a)]$ (mildly off-policy).\\
 \textbf{DDPG:} Estimate and replace $\max_{a'}Q_{\theta_\mathrm{old}}(x',a')$ with $Q_{\theta_{\mathrm{old}}}(x', \pi_{\theta_\pi}(x'))$ in Q-learning. Then, $\theta^*_{\pi}\in\argmax_\theta \E_{x\sim\mu}[Q_{\theta_Q}(x,\pi_\theta(x))]$ for any $\mu > 0$. \emph{Algorithm:} 1. Observe $\{(x,a,x',r)\}$ with actions $a=\pi_{\theta_\pi}(x)+\epsilon$, $\epsilon\sim\mathcal{N}(0,\lambda\mathbf{I})$ (\emph{noise for exploration}). 2. For minibatches $B\subset D$:\\
 $\theta_Q \leftarrow \mathrm{DQN}$\\
 $\theta_\pi \leftarrow \theta_\pi +\eta\nabla\frac{1}{|B|}\sum_B Q_{\theta_Q}(x,\pi_{\theta_\pi}(x))$\\
@@ -48,3 +48,34 @@ $\theta^{\mathrm{old}}_{\pi | Q} \leftarrow (1-p)\theta^{\mathrm{old}}_{\pi | Q}
 \textbf{SVG:} DDPG with \textbf{randomized policies} $\pi_{\theta_\pi}(a|x)$. Update $\theta_Q$ by sampling $a'\sim\pi_{\theta^\mathrm{old}_\pi}(x')$ to estimate $\E_{a'\sim\pi}[r+\gamma Q_{\theta^\mathrm{old}_Q}(x',\pi_{\theta^\mathrm{old}_\pi}(x'))]$. Update $\theta_\pi$ by reparameterizing $a\sim\pi_{\theta_\pi}$ to $a=\psi_{\theta_\pi}(x,\epsilon)$.
 Then, $\nabla_{\theta_\pi}\E_{a\sim\pi_{\theta_\pi}(x)}Q_{\theta_Q}(x,a) = \E_\epsilon[\nabla_{\delta_\pi}Q_{\theta_Q}(x,\psi_{\theta_\pi}(x,\epsilon))]$.\\
 \textbf{SAC:} SVG with entropy regularization: $J_\lambda(\theta) = J(\theta) + \lambda H(\pi_\theta)$ (helps exploration).
+
+\subsection*{Model-based, $|A|$ large, $|X|$ large}
+\emph{Algorithm:} 1. Collect data $D$ with policy $\pi$.\\
+2. Est. trans. model $f(x,a)$, rew. $r(x,a)$ from $D$.\\
+3. Plan $\pi$ from $f$, $r$, $D$.{\tiny\CircArrowRight{}}
+\subsubsection*{3. --- Planning with Model Predictive Control}
+For horizon $H$, define $J(a_{t:t+H-1})=\sum_{\tau=t:t+H-1}\gamma^{\tau-t}r_\tau(x(a_{t:\tau-1}), a_\tau)$.\\
+1. Find $a_t,\ldots = \argmax_{a_{t:t+H-1}}J(a_{t:t+H-1})$ where
+$x_{t+1} = f(x_t, a_t)$.\quad | \quad 2. Execute $a_t$.{\tiny\CircArrowRight{}}\\
+\emph{Optimization:} GD, random shooting (sample $(a_{t:{t+H-1}})^{(i)}$, choose $\color{black}\argmax$).\\
+\textbf{MPC + Value Estimate:} Find $a_t,\ldots = \argmax_{a_{t:t+H-1}}J(a_{t:t+H-1})+\gamma^H V(x(a_{t:t+H-1}))$.\\
+\textbf{MPC + Probabilistic transition model:}
+Re-define $J(a_{t:t+H-1})=\E_{x_{t+1}:x_{t+H}}[$\\$\sum_{\tau=t:t+H-1}\gamma^{\tau-t}r_\tau(x_t, a_\tau)+\gamma^H V(x_{H})|a_{t:t+H-1}]$. For reparameterizable transition model $x_t+1 = f(x_t,a_t,\epsilon_t)$ with RVs $\epsilon_t$, estimate 
+$J(a_{t:t+H-1})$ as $\frac{1}{M}\sum_{i\leq M}(\sum_{\tau=t:t+H-1}\gamma^{\tau-t}r_\tau(x_\tau(a_{t:\tau-1},\epsilon^{(i)}_{t:\tau-1}), a_\tau)+\gamma^H V(x_{H}))$.\\
+\textbf{Parameterized policies:}
+Def. policy $\pi_\theta(x)$.\\
+\hphantom\,\,\,\,\,Like DDPG, max. $\E_{x\sim\mu}[Q^{\pi_\theta}(x,\pi_\theta(x))] = \E_{x\sim\mu}[\sum_{\tau=0:H-1}\gamma^\tau r_\tau + \gamma^H Q(x_{H}, \pi_\theta(x_H))]$.
+\emph{Replaces slow MPC planning with fast policy evaluation.}
+
+\subsubsection*{2. --- Learning $f$ and $r$}
+Supervised learning problem with inputs $(x_i, a_i)$ and labels
+$(x_{i+1}, r_i)$.\\
+\textbf{MAP estimate of $p(f|D)$:} Define prior $p(\theta)$.\\ Def. lik. as \textbf{conditional Gaussian dynamics}: $x'|f, x, a \sim \mathcal{N}(\mu_f(x,a), \Sigma_f(x,a))$.
+\emph{Problem: Creates large compound error for large horizon H $\color{black}\implies$ poor performance. Solution: Bayesian models.}
+\textbf{Bayesian models (GPs, BNNs):} Sample $f^{(i)}\sim p(\cdot|D)$, approximately maximize $\E_{f|D}[J(a_{t:t+H-1})]\approx \hat{J}(a_{t:t+H-1}) = \frac{1}{M}\sum_{i\leq M}(\sum_{\tau=t:t+H-1}\gamma^{\tau-t}r_\tau(x_\tau(a_{t:\tau-1},\epsilon^{(i)}_{t:\tau-1}, f^{(i)}), a_\tau)+\gamma^H V(x_{H}))$. \textbf{PETS} does this with an NN ensemble $f^{(i)}$.
+\textbf{Exploration-exploitation dilemma:} Act so that we get good samples for supervised learning. \emph{Solution 1: Additive noise.}\\
+\emph{Solution 2:} \textbf{Thompson sampling:} Sample $f\sim P(\cdot|D)$, plan $\pi=\argmax_{\pi}J(\pi,f)$, roll-out $\pi$.\\
+\emph{Solution 3:} \textbf{Optimistic exploration:} Define set of plausible models given data $D$: $M(D)$. Plan $\pi = \argmax_\pi \max_{f\in M(D)}J(\pi, f)$ (difficult).\\
+\textbf{H-UCRL:} Optimistic exploration with $\pi_{t+1} = \argmax_{\pi}\max_{\eta(\cdot)\in[-1,1]^p} J(\tilde{f},\pi)$ with $\tilde{f}(x,a) = \mu_t(x,a) + \beta_{t}\Sigma_{t}(x,a)\eta(x,a)$.\\
+\textbf{Safe exploration:} \emph{Theorem:} With conditional Gaussian dynamics, can overapprox. reachable states w.p. $1-\delta$. \textbf{Safe MPC:} Guarantee returnability to safe
+set by only taking actions with possible return path.
