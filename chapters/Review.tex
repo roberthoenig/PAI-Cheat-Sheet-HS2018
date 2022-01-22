@@ -1,33 +1,23 @@
-\section{Review of useful concepts and Introduction}
-\subsection{Multivariate Gaussian}
-%$\sigma =$ covariance matrix, $\mu$ = mean\\
-$\mathcal{N}(x;\bm{\mu}, \bm{\Sigma})= |2\pi\bm{\Sigma}|^{-1/2} e^{-\frac{1}{2}(\mathbf{x}-\bm{\mu})^T\bm{\Sigma}^{-1}(\mathbf{x}-\bm{\mu})} $
-
-Suppose we have a Gaussian random vector $X_V \sim N(\mu_V, \Sigma_{VV})$.\\
-Suppose we take two disjoint subsets of V: $A={i_1,...,i_k}$ and $B={j_1,...,j_m}$.\\
-Then, the conditional distribution: \\
-$P(X_A|X_B=x_B)=N(\mu_{A|B}, \Sigma_{A|B})$ is Gaussian:\\
+\section{Math}\vspace*{-0.8em}
+\textbf{Gaussian:}
+$\mathcal{N}(x;\bm{\mu}, \bm{\Sigma})= |2\pi\bm{\Sigma}|^{-1/2} e^{-\frac{1}{2}(\mathbf{x}-\bm{\mu})^T\bm{\Sigma}^{-1}(\mathbf{x}-\bm{\mu})} $\\
+\textbf{Conditional Gaussian:}
+Given\\$X_V \sim N(\mu_V, \Sigma_{VV})$, $V=A\cupdot B$\\
+Then $P(X_A|X_B=x_B)=N(\mu_{A|B}, \Sigma_{A|B})$ with\\
 $\mu_{A|B}=\mu_A+\Sigma_{AB}\Sigma^{-1}_{BB}(x_B-\mu_B)$\\
 $\Sigma_{A|B}=\Sigma_{AA}-\Sigma_{AB}\Sigma^{-1}_{BB}\Sigma_{BA}$
 
-\subsection{Information Theory}
+\textbf{Information Theory:}\\
 $I(Y;X) = I(X;Y) = H(X) - H(X|Y)$.\\
 $I(X;Y|Z) = H(X|Z) - H(X|Y;Z)$.\\
 $H(X|Y) = \E_{y\sim p(y)}[X|Y=y]$.\\
 If $X\sim\mathcal{N}(\mu, \Sigma)$ then $H(X) = \frac{1}{2}\ln(2\pi e)^d|\Sigma|$.\\
 If $X\sim\mathcal{N}(\mu, \Sigma)$, $Y = X + \epsilon$, $\epsilon\sim\mathcal{N}(0,\sigma^2\mI)$, then $I(X;Y) = \frac{1}{2}\ln|\mI+\sigma^{-2}\Sigma|$.
 
-\section{Formulas}
-\textbf{Hoeffding's inequality:} I.i.d. $(X_i)\sim X\in[0,C]$ satisfy $P(|\E[X] - \frac{1}{n}\sum_{i\leq n}X_i|>\epsilon) \leq 2\exp(-2n\frac{\epsilon^2}{C^2})$.
+\textbf{Hoeffding's inequality:}
+I.i.d. $(X_i)\sim X\in[0,C]$ satisfy $P(|\E[X] - \frac{1}{n}\sum_{i\leq n}X_i|>\epsilon) \leq 2\exp(-2n\frac{\epsilon^2}{C^2})$.
 
-\section{Bayesian Learning}
-\textbf{Prior:} $p(\theta)$
-\textbf{Likelihood:} $p(\rvy|\mX,\theta) = \prod p(y_i|x_i,\theta)$
-\textbf{Posterior:} $p(\theta|\rvy,\mX) = \frac{1}{Z}p(\theta)\prod p(y_i|x_i, \theta)$ with $Z = \int p(\theta)\prod p(y_i|x_i, \theta) d\theta$.
-\textbf{Predictions:} $p(y^*|x^*,\mX,\rvy) = \int p(y^*|x^*,\theta)p(\theta|\mX, \rvy) d\theta$. 
-
-
-\section{Bayesian Neural Networks}
+\section{Bayesian Neural Networks}\vspace*{-0.5em}
 \textbf{Prior:} $p(\theta) = \mathcal{N}(0, \sigma^2\mI)$.\\
 \textbf{Likelihood:} $p(y|\vx, \theta) = \mathcal{N}(\mu_\theta(\vx), \sigma^2_\theta(\vx))$. ($\sigma^2_\theta(\vx)$ non-constant $\color{black}$ iff het.scd. noise).
 \textbf{Predictions:} \mbox{$p(y^*|\mX,\vy,\vx^*) \approx \frac{1}{m}\sum\mathcal{N}(y^*;\mu_{\theta_m}(\vx^*), \sigma_{\theta_m}^2(\vx^*))$ (GMM).} \mbox{$\Var(y^*|\mX,\rvy,x^*) = {\color{red}\E[\Var(y^*|x^*,\theta)]} + {\color{blue}\Var(\E[y^*|x^*,\theta])}$} $\approx {\color{red}\overset{aleatoric}{\frac{1}{m}\sum\sigma^2_{\theta_m}(\vx^*)}} + {\color{blue}\overset{epistemic}{\frac{1}{m}\sum(\mu_{\theta_m}(\vx^*)-\bar{\mu}_{\theta_m}(\vx^*))^2}}$\\
@@ -43,9 +33,10 @@ If $X\sim\mathcal{N}(\mu, \Sigma)$, $Y = X + \epsilon$, $\epsilon\sim\mathcal{N}
 \textbf{Likelihood:} $\rvy|\mX,\rvw\sim\mathcal{N}(\mX\beta^T,\sigma^2\mathbf{I})$\\
 \textbf{Posterior:} $p(\rvw;\mathbf{X},\mathbf{y}) = \mathcal{N}(\rvw; \bar\mu, \bar\Sigma)$ where\\
 $\bar\mu = (\mathbf{X}^T\mathbf{X} +\sigma^2\bm{\Lambda})^{-1}\mathbf{X}^T\mathbf{y}$\\
+\vspace*{-2em}
 $\bar\Sigma = \sigma^2(\mathbf{X}^T\mathbf{X} +\sigma^2\bm{\Lambda})^{-1}$\\
-\textbf{Pred.:}
-\mbox{$y^* = {\vx^*}^T\rvw + \epsilon\sim \mathcal{N}({\vx^*}^T\bar\mu, \underbrace{{\vx^*}^T\bar\Sigma{\vx^*}}_\text{\color{purple}epistemic}+\underbrace{\sigma^2}_\text{\color{purple}aleatoric})$}
+\mbox{\textbf{Pred.:}
+$y^* = {\vx^*}^T\rvw + \epsilon\sim \mathcal{N}({\vx^*}^T\bar\mu, \overbrace{{\vx^*}^T\bar\Sigma{\vx^*}}^\text{\color{purple}epistemic}+\overbrace{\sigma^2}^\text{\color{purple}aleatoric})$}
 \textbf{\color{gray}Pred:}
 $p(y^*|\rvx^*,\mX,\rvy) = \int p(y^*|\rvx^*,\rvw)p(\rvw|\mX,\rvy) d\rvw$
 

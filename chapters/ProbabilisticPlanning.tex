@@ -1,42 +1,33 @@
-\section{Probabilistic Planning}
-\subsection{Markov Decision Processes}
-An MDP is specified by a quintuple: $(X, A, r, P(x'|x, a), \gamma)$, where $X$ are states, $A$ are actions, $r(x,a)$ is a reward function and transition probabilities:\\
-    $P(x'|x,a)=\text{Prob(Next state}=x'|\text{Action } a)$\\ 
+\section{Markov Decision Processes}
+MDP: $(X, A, r, P(x'|x, a), \gamma)$: states $X$, actions $A$, reward $r(x,a)$, transition probs.
+    $P(x'|x,a)$.\\ 
 \textbf{Goal:} Maximize $J(\pi) = \E[\sum_{k\geq0} \gamma^k r(X_k, \pi(X_k))] = \sum_{x}P(X_0=x)V^\pi(x)$.\\
 \textbf{Value function:} $V^\pi(x) = J(\pi|X_0=x) = r(x,\pi(x)) + \gamma\sum_{x'} P(x'|x,\pi(x))V^\pi(x')$.\\
 \emph{Closed form:} $V^{\pi} = (\mathbf{I}-\gamma P^\pi)^{-1}r^\pi$. \emph{Fixed-point it.:} $\mathcal{B}V = r^\pi+\gamma P^\pi V$ contraction, so $||V_t^\pi-V^\pi||_\infty \leq \gamma^t||V_0^\pi-V^\pi||_\infty$.\\
+\textbf{Action-value function:}\\$Q^\pi(x,a)=r(x,a)+\gamma\sum_{x'}P(x'|x,a)V^\pi(x')$.\\
 \textbf{Greedy policy wrt. V:}\\
 $\pi(x)=\argmax_{a\in A} [r(x,a)+\gamma \sum_{x'}P(x'|x,a)V(x')]$\\
 \textbf{Theorem (Bellman)}: A policy is optimal iff it is greedy w.r.t. its induced value function!\\
 \mbox{$\pi^*(x)={\argmax_{a}} [r(x,a)+\gamma \sum_{x'}P(x'|x,a)V^{\pi*}(x')]$}\\
-$V^*(x)=\max_a[r(x,a)+\gamma \sum_{x'}P(x'|x,a)V^*(x')]$\\
+$V^*(x)=\max_a[r(x,a)+\gamma \sum_{x'}P(x'|x,a)V^*(x')]=\max_a Q^*(x,a)$\\
+\textbf{Policy iteration $O(|X|^3+|X|^2|A|)$:}\\
+\emph{Init:} Policy $\pi$. \emph{Repeat:} 1. Compute $V^\pi (x)$. 2. Set $\pi \leftarrow$ greedy policy w.r.t. $V^\pi$.\\
+\emph{Monotonically improves}, cv to an \emph{optimal} policy $\pi^*$ in \emph{polynomial} ($O(n^2m/(1-\gamma))$) iterations!
 
-
-\textbf{Policy iteration (Cost $O((|X|^3+|X|^2|A|)K$):}\\
-Start with an arbitrary (e.g. random) policy $\pi$.
-Until converged, do:\\
-- Compute value function $V^\pi (x)$\\
-- Compute greedy policy $\pi_G$ w.r.t. $V^\pi$\\
-- Set $\pi \leftarrow \pi_G$\\
-Guaranteed to \emph{monotonically improve} and to converge to an \emph{optimal} policy $\pi^*$ in \emph{polynomial} ($O(n^2m/(1-\gamma))$) iterations!
-
-\textbf{Value iteration (Cost $O(|X|^2|A|)K$):}\\
-Initialize $V_0(x)=max_a r(x,a)$\\
-For $t=1$ to $\infty$:\\
-- For each $(x,a)$, let: \\
-$Q_t(x,a)=r(x,a)+\gamma\sum_{x'}P(x'|x,a)V_{t-1}(x')$\\
-- For each $x$, let $V_t(x)=\underset{a}{max}Q_t(x,a)$\\
-- Break if $||V_{t+1}-V_{t}||_{\infty}{\leq\color{gray}\gamma||V_t-V_{t-1}||_{\infty}}\leq\epsilon$\\
-Then choose greedy policy w.r.t $V_t$.\\
-CV proof: Bellman update $(B^*V)(x) = \max_a Q(x,a)$ is a contraction: $||B^*V-B^*V'||_\infty \leq \gamma||V-V'||_\infty$\\
+\textbf{Value iteration $O(|X|^2|A|)$:}\\
+\emph{Init:} $V_0(x)=max_a r(x,a)$.\\
+\emph{Repeat:}
+1. $\forall x$ set $V_t(x)=\max_aQ_t(x,a)$\\
+2. Break if $||V_{t+1}-V_{t}||_{\infty}{\leq\color{gray}\gamma||V_t-V_{t-1}||_{\infty}}\leq\epsilon$\\
+Then choose greedy policy w.r.t $V_t$.
+\emph{CV proof}: Bellman update $(B^*V)(x) = \max_a Q(x,a)$ is a contraction: $||B^*V-B^*V'||_\infty \leq \gamma||V-V'||_\infty$\\
 Guaranteed to converge to $\epsilon$-optimal policy in \emph{polynomial} iterations!
 
-\textbf{POMDP = Partially observable MDP):}\\
-\emph{Graphical model =} Kalman filter + actions.\\
+\textbf{POMDP:} Only observe $Y$, have $P(Y_t|X_t)$.\\
 States = probability dists. over states X =\\
 \mbox{$B=\Delta(\{1,...,n\})=\{ b:{1,...,n} \rightarrow [0,1],\sum_x b(x)=1 \}$}\\
 Actions: Same as original MDP.\\
-\textbf{Transition model:}\\
+\textbf{Transition model:}
 Stochastic observation:\\
 $P(Y_{t+1}=y|b_t,a)=\sum_{x,x'} P(x'|x,a)P(y|x')$\\
 State update (Bayesian filtering!):

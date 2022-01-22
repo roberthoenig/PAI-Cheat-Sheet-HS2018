@@ -1,10 +1,8 @@
 \section{Reinforcement Learning}
 \emph{Unknown $r(x,a)$, $P(x'|x,a)$.}
 \subsection{Model-based, $|A|$ small, $|X|$ small}
-\mbox{1. Est $P(x'|x,a) = \frac{\#(x',x,a)}{\#(x,a)}$,
-$r(x,a) = \frac{1}{\#(x,a)}\smashoperator{\sum_{t:(x_t,a_t)=(x,a)}}r_t$.}\\
-2. Update $\pi$.\\
-3. Explore \& exploit:\\
+\mbox{1. Empirically estimate $P(x'|x,a)$ and $r(x,a)$.}\\
+2. Update $\pi$. \quad 3. Explore \& exploit:\\
 3.1 ($\color{black}\mathbf{\epsilon}$\textbf{-greedy}): $a_t=\mathrm{Cat}_{[1-\epsilon_t, \epsilon_t]}[\pi^*(x_t),\mathrm{rand}]$. CV a.s. if $\sum \epsilon_t = \infty$, $\sum \epsilon^2_t < \infty$.\\
 3.2 ($\color{black}\mathbf{R_{\max}}$): Set $r(x,a)=R_{\max}$, $P(x^*|x,a)=1$, $r(x^*,a)=R_{\max}$. Update with empirical estimates after collecting $n_{x,a} \geq \frac{R_{\max}^2}{2\epsilon^2}\log\frac{2}{\delta}$ samples. \emph{Every $T$ steps, w.h.p. $R_{\max}$ yields near-opt. reward or visits $\geq 1$ unknown state-action pair.\\}
 \emph{With $p=1-\delta$ $R_{\max}$ reaches $\epsilon$-opt. policy in $O(\mathrm{poly}(|X|,|A|,T,\frac{1}{\epsilon},\log\frac{1}{\delta}, R_{\max})$)}
@@ -21,7 +19,7 @@ $r(x,a) = \frac{1}{\#(x,a)}\smashoperator{\sum_{t:(x_t,a_t)=(x,a)}}r_t$.}\\
 \textbf{\emph{Training:}} Minimize $ l_2(x,a,r,x',\theta) = \frac{1}{2}\delta^2$ with $\delta = Q(x,a;\theta) - (r+\gamma\max_{a'}Q(x',a';\theta_\mathrm{old}))$.\\
 \emph{Update:} $\theta_{t+1} \leftarrow \theta_t - \alpha_t\delta\nabla_{\theta_t}Q(x,a;\theta_t)$.\\
 \textbf{Experience Replay:} Collect $D=\{(x,a,r,x')\}$, fix $\theta_\mathrm{old}$. Minimize $L(\theta) = \sum_{d\in D}l_2(d,\theta)$.
-\textbf{Double DQN:} Reduce \textbf{maximization bias} by changing $\max_{a'}Q(x',a';\theta_\mathrm{old}))$ in $\delta$ to $\max_{a'}Q(x',a';\theta))$. 
+\textbf{DDQN:} Reduce \textbf{maximization bias} by changing $\max_{a'}Q(x',a';\theta_\mathrm{old}))$ in $\delta$ to $\max_{a'}Q(x',a';\theta))$. 
 
 \subsection{Model-free, $|A|$ large, $|X|$ large}
 \textbf{Policy gradient:} Assume episodic setting. Define policy $\pi_\theta(a|x)$. Define \emph{roll-out} $\tau_{0:t}=(x_0,a_0,r_0,\ldots,x_t,a_t,r_t,x_{t+1})$\\
@@ -60,8 +58,7 @@ $x_{t+1} = f(x_t, a_t)$.\quad | \quad 2. Execute $a_t$.{\tiny\CircArrowRight{}}\
 \emph{Optimization:} GD, random shooting (sample $(a_{t:{t+H-1}})^{(i)}$, choose $\color{black}\argmax$).\\
 \textbf{MPC + Value Estimate:} Find $a_t,\ldots = \argmax_{a_{t:t+H-1}}J(a_{t:t+H-1})+\gamma^H V(x(a_{t:t+H-1}))$.\\
 \textbf{MPC + Probabilistic transition model:}
-Re-define $J(a_{t:t+H-1})=\E_{x_{t+1}:x_{t+H}}[$\\$\sum_{\tau=t:t+H-1}\gamma^{\tau-t}r_\tau(x_t, a_\tau)+\gamma^H V(x_{H})|a_{t:t+H-1}]$. For reparameterizable transition model $x_t+1 = f(x_t,a_t,\epsilon_t)$ with RVs $\epsilon_t$, estimate 
-$J(a_{t:t+H-1})$ as $\frac{1}{M}\sum_{i\leq M}(\sum_{\tau=t:t+H-1}\gamma^{\tau-t}r_\tau(x_\tau(a_{t:\tau-1},\epsilon^{(i)}_{t:\tau-1}), a_\tau)+\gamma^H V(x_{H}))$.\\
+Redef. $J(a_{t:t+H-1})=\E_{x_{t+1}:x_{t+H}}[$\\$\sum_{\tau=t:t+H-1}\gamma^{\tau-t}r_\tau(x_t, a_\tau)|a_{t:t+H-1}]$ = $\E_{\epsilon_{t}:\epsilon_{t+H-1}}[$\\$\sum_{\tau=t:t+H-1}\gamma^{\tau-t}r_\tau(x_\tau(a_{t:\tau-1},\epsilon^{(i)}_{t:\tau-1}), a_\tau)]$ for reparam. trans. model $x_t+1 = f(x_t,a_t,\epsilon_t)$.\\
 \textbf{Parameterized policies:}
 Def. policy $\pi_\theta(x)$.\\
 \hphantom\,\,\,\,\,Like DDPG, max. $\E_{x\sim\mu}[Q^{\pi_\theta}(x,\pi_\theta(x))] = \E_{x\sim\mu}[\sum_{\tau=0:H-1}\gamma^\tau r_\tau + \gamma^H Q(x_{H}, \pi_\theta(x_H))]$.
@@ -73,9 +70,8 @@ $(x_{i+1}, r_i)$.\\
 \textbf{MAP estimate of $p(f|D)$:} Define prior $p(\theta)$.\\ Def. lik. as \textbf{conditional Gaussian dynamics}: $x'|f, x, a \sim \mathcal{N}(\mu_f(x,a), \Sigma_f(x,a))$.
 \emph{Problem: Creates large compound error for large horizon H $\color{black}\implies$ poor performance. Solution: Bayesian models.}
 \textbf{Bayesian models (GPs, BNNs):} Sample $f^{(i)}\sim p(\cdot|D)$, approximately maximize $\E_{f|D}[J(a_{t:t+H-1})]\approx \hat{J}(a_{t:t+H-1}) = \frac{1}{M}\sum_{i\leq M}(\sum_{\tau=t:t+H-1}\gamma^{\tau-t}r_\tau(x_\tau(a_{t:\tau-1},\epsilon^{(i)}_{t:\tau-1}, f^{(i)}), a_\tau)+\gamma^H V(x_{H}))$. \textbf{PETS} does this with an NN ensemble $f^{(i)}$.
-\textbf{Exploration-exploitation dilemma:} Act so that we get good samples for supervised learning. \emph{Solution 1: Additive noise.}\\
-\emph{Solution 2:} \textbf{Thompson sampling:} Sample $f\sim P(\cdot|D)$, plan $\pi=\argmax_{\pi}J(\pi,f)$, roll-out $\pi$.\\
-\emph{Solution 3:} \textbf{Optimistic exploration:} Define set of plausible models given data $D$: $M(D)$. Plan $\pi = \argmax_\pi \max_{f\in M(D)}J(\pi, f)$ (difficult).\\
-\textbf{H-UCRL:} Optimistic exploration with $\pi_{t+1} = \argmax_{\pi}\max_{\eta(\cdot)\in[-1,1]^p} J(\tilde{f},\pi)$ with $\tilde{f}(x,a) = \mu_t(x,a) + \beta_{t}\Sigma_{t}(x,a)\eta(x,a)$.\\
-\textbf{Safe exploration:} \emph{Theorem:} With conditional Gaussian dynamics, can overapprox. reachable states w.p. $1-\delta$. \textbf{Safe MPC:} Guarantee returnability to safe
-set by only taking actions with possible return path.
+\textbf{Exploration-exploitation dilemma:} Act so that we get good samples for supervised learning. \emph{Sol. 1: Additive noise.}\\
+\emph{Sol. 2:} \textbf{Thompson sampling:} Sample $f\sim P(\cdot|D)$, plan $\pi=\argmax_{\pi}J(\pi,f)$, roll-out $\pi$.\\
+\emph{Sol. 3:} \textbf{Optimistic exploration:} Define set of plausible models given data $D$: $M(D)$. Plan $\pi = \argmax_\pi \max_{f\in M(D)}J(\pi, f)$ (\emph{difficult}).\\
+\textbf{H-UCRL:} Optimistic exploration with $\pi_{t+1} = \argmax_{\pi}\max_{\eta(\cdot)\in[-1,1]^p} J(\tilde{f},\pi)$ and $\tilde{f}(x,a) = \mu_t(x,a) + \beta_{t}\Sigma_{t}(x,a)\eta(x,a)$.\\
+\textbf{Safe exploration:} \emph{Th.:} With conditional Gaussian dynamics, can overapprox. reachable states w.p. $1-\delta$.

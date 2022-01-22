@@ -7,7 +7,7 @@
 \textbf{Likelihood:} $p(\rvy|\rvw) = \prod\sigma(y_i\rvw^T\vx_i)$.\\
 \textbf{Posterior:} $p(\rvw|\rvy)$ intractable.
 \subsubsection*{Laplace approximation:}
-Fit Gaussian around mode of posterior:\\\hphantom\,\,\,\,\,$p(\rvw|\rvy)\approx\mathcal{N}(\rvw;\mu,\Lambda^{-1})$ where $\mu = \argmax_\rvw{p(\rvw|\rvy)}$ and $\Lambda = -\nabla\nabla p(\mu|\rvy)$. (Use Taylor expansion of $\log p(\rvw|\rvy)$.)
+Fit Gaussian around mode of posterior: $p(\rvw|\rvy)\approx\mathcal{N}(\rvw;\mu,\Lambda^{-1})$ where $\mu = \argmax_\rvw{p(\rvw|\rvy)}$ and $\Lambda = -\nabla\nabla p(\mu|\rvy)$. (Use Taylor expansion of $\log p(\rvw|\rvy)$.)
 \emph{For Bayesian Logistic Regression}: Find $\mu$ with GD on $p(\rvw|\rvy)$. $\Lambda = \sum \vx_i\vx_i^T\sigma(\mu^T \vx_i)(1-\sigma(\mu^T \vx_i))$. Predictive dist.: $p(y^*|\vx^*,\rvy) \approx \int\sigma(y^*\rvw^T\vx^*)\mathcal{N}(\rvw;\mu,\Lambda^{-1}) \dd{\vw}   = \int\sigma(y^*f)\mathcal{N}(f;\mu^T\vx^*, {x^*}^T\Lambda^{-1}x^*) \dd{f}$.
 \subsubsection*{Variational Inference}
 Given variational family Q, find $\argmin_{q\in Q}\mathrm{KL}(q||p)$ (reverse KL). We have\\
@@ -18,8 +18,6 @@ Given variational family Q, find $\argmin_{q\in Q}\mathrm{KL}(q||p)$ (reverse KL
 \subsection{Sampling based inference (MCMC)}
 \textbf{Goal}: Sample from $\frac{1}{Z}Q(X)$ to approximate
 $\E_{\theta\sim\frac{1}{Z}Q(.)}[f(\theta)]$. ($f(\theta) = p(y^*|x^*,\theta), Q(\theta)\propto p(\theta|x_{1:n},y_{1:n}))$ for Bayesian Inference)\\
-\textbf{Hoeffding's inequality:} If $f$ is bounded in $[0, C]$, then
-$P(|E[f(X)]-\frac{1}{N}\sum_{i=1}^N f(x_i)| > \epsilon) \leq 2exp\big( \frac{-2N\epsilon^2}{C^2}\big)$.\\
 \textbf{Ergodic theorem:} If $(X_i)$ is an ergodic MC with stationary distribution $\pi$, then
 $\lim_{N\to\infty}\frac{1}{N}\sum_{i=1}^{N}f(X_i) = \E_{X\sim\pi}[f(X)]$. 
 
