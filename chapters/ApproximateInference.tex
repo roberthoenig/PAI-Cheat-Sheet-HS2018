@@ -1,5 +1,20 @@
 
 \section{Approximate inference}
+\subsection{Variational Inference}
+\subsubsection*{Bayesian Logistic Regression:}
+\textbf{Data:} $\vx_i \in R^n$, $y_i\in\{-1,1\}$.
+\textbf{Prior:} $\rvw\sim\mathcal{N}(0,\sigma^2_p\mathbf{I})$.
+\textbf{Likelihood:} $p(\rvy|\rvw) = \prod\sigma(y_i\rvw^T\vx_i)$.\\
+\textbf{Posterior:} $p(\rvw|\rvy)$ intractable.
+\subsubsection*{Laplace approximation:}
+Fit Gaussian around mode of posterior:\\\hphantom\,\,\,\,\,$p(\rvw|\rvy)\approx\mathcal{N}(\rvw;\mu,\Lambda^{-1})$ where $\mu = \argmax_\rvw{p(\rvw|\rvy)}$ and $\Lambda = -\nabla\nabla p(\mu|\rvy)$. (Use Taylor expansion of $\log p(\rvw|\rvy)$.)
+\emph{For Bayesian Logistic Regression}: Find $\mu$ with GD on $p(\rvw|\rvy)$. $\Lambda = \sum \vx_i\vx_i^T\sigma(\mu^T \vx_i)(1-\sigma(\mu^T \vx_i))$. Predictive dist.: $p(y^*|\vx^*,\rvy) \approx \int\sigma(y^*\rvw^T\vx^*)\mathcal{N}(\rvw;\mu,\Lambda^{-1}) \dd{\vw}   = \int\sigma(y^*f)\mathcal{N}(f;\mu^T\vx^*, {x^*}^T\Lambda^{-1}x^*) \dd{f}$.
+\subsubsection*{Variational Inference}
+Given variational family Q, find $\argmin_{q\in Q}\mathrm{KL}(q||p)$ (reverse KL). We have\\
+(1) $\mathrm{KL}(q||p) = \int q(\theta)\log\frac{q(\theta)}{p(\theta)}\dd{\theta}$\\ 
+(2) $\mathrm{KL}(\mathcal{N}(\mu_0,\Sigma_0),\mathcal{N}(\mu_1,\Sigma_1)) = \frac{1}{2}(\tr(\Sigma_1^{-1}\Sigma_0)+(\mu_1-\mu_0)^T\Sigma_1^{-1}(\mu_1-\mu_0))-d+\ln\frac{|\Sigma_1|}{|\Sigma_0|}$.\\
+(3) $\argmin_{q}\mathrm{KL}(q||p(\cdot|\rvy))) = \argmax_q \mathrm{\color{black}\mathbf{ELBO}}$ where $\mathrm{\color{black}\mathbf{ELBO}} = \E_{\theta\sim q}[\log p(\theta, \rvy)] + H(q) = \E_{\theta\sim q}[\log p(y|\theta)] - \mathrm{KL}(q||p(\cdot))$.
+
 \subsection{Sampling based inference (MCMC)}
 \textbf{Goal}: Sample from $\frac{1}{Z}Q(X)$ to approximate
 $\E_{\theta\sim\frac{1}{Z}Q(.)}[f(\theta)]$. ($f(\theta) = p(y^*|x^*,\theta), Q(\theta)\propto p(\theta|x_{1:n},y_{1:n}))$ for Bayesian Inference)\\

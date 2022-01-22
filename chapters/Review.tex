@@ -1,7 +1,7 @@
 \section{Review of useful concepts and Introduction}
 \subsection{Multivariate Gaussian}
 %$\sigma =$ covariance matrix, $\mu$ = mean\\
-$f(x) = \frac{1}{2\pi \sqrt{|\Sigma|}} e^{- \frac{1}{2} (x-\mu)^T \Sigma^{-1} (x-\mu)}$
+$\mathcal{N}(x;\bm{\mu}, \bm{\Sigma})= |2\pi\bm{\Sigma}|^{-1/2} e^{-\frac{1}{2}(\mathbf{x}-\bm{\mu})^T\bm{\Sigma}^{-1}(\mathbf{x}-\bm{\mu})} $
 
 Suppose we have a Gaussian random vector $X_V \sim N(\mu_V, \Sigma_{VV})$.\\
 Suppose we take two disjoint subsets of V: $A={i_1,...,i_k}$ and $B={j_1,...,j_m}$.\\
@@ -38,8 +38,9 @@ If $X\sim\mathcal{N}(\mu, \Sigma)$, $Y = X + \epsilon$, $\epsilon\sim\mathcal{N}
 \textbf{Calibration:} Perfectly calibrated iff $\forall p.\,P(\hat{Y}=Y|\hat{P}=p) = p$, where $Y$ is the real class and $\hat{Y}, \hat{P}$ is the NN output. \textbf{Expected Calibration Error:} $\E[|P(\hat{Y}=Y|\hat{P}) - \hat{P}|]$.
 \textbf{Max. Calibration Error:} $\max_p |P(\hat{Y}=Y|\hat{P}=p) - p|$.
 
-\section{Bayesian Linear Regression}
+\section{Bayesian Linear Regression $O(d^2n)$}
 \textbf{Prior:} $\rvw\sim\mathcal{N}(\mathbf{0},\Lambda^{-1})$\\
+\textbf{Likelihood:} $\rvy|\mX,\rvw\sim\mathcal{N}(\mX\beta^T,\sigma^2\mathbf{I})$\\
 \textbf{Posterior:} $p(\rvw;\mathbf{X},\mathbf{y}) = \mathcal{N}(\rvw; \bar\mu, \bar\Sigma)$ where\\
 $\bar\mu = (\mathbf{X}^T\mathbf{X} +\sigma^2\bm{\Lambda})^{-1}\mathbf{X}^T\mathbf{y}$\\
 $\bar\Sigma = \sigma^2(\mathbf{X}^T\mathbf{X} +\sigma^2\bm{\Lambda})^{-1}$\\
@@ -61,3 +62,35 @@ $K_{t+1}=$\\$(F\Sigma_t F^T+\Sigma_x)H^T(H(F\Sigma_t F^T+\Sigma_x)H^T+ \Sigma_y)
 $\mu_{t+1}=F\mu_t+K_{t+1}(\rvy_{t+1}-HF\mu_t)$\\
 $\Sigma_{t+1}=(I-K_{t+1}H)(F\Sigma_tF^T + \Sigma_x)$\\
 % asdf
+
+\section{Gaussian Processes $O(n^3)$}
+\mbox{\textbf{Def.:} $f: \mathcal{X} \rightarrow \mathbb{R} \sim \mathrm{GP}(\mu, k)$ iff $\forall A\!.\, f_A \sim \mathcal{N}(\mu_A, \mK_{AA})$}\\
+\textbf{Model:} 
+$\rvy = f_A + \mathbf{\epsilon}$, $\mathbf{\epsilon} \sim \mathcal{N}(0, \sigma^2\mathbb{I})$\\
+\textbf{Prediction:}\\
+$p(f;A,\rvy) \sim \mathrm{GP}(f;\mu', k')$ with\\
+\mbox{\hspace{-0em}$\mu'(\vx) = \mu(\vx) + \vk_{\vx,A}(\mK_{AA} + \sigma^2\mathbb{I})^{-1}(\rvy_A - \mu_A)$}\\
+\mbox{\hspace{-0em}
+$k'(\vx,\vx') = k(\vx,\vx') - \vk_{\vx,A}(\mK_{AA}+\sigma^2\mathbb{I})^{-1}\vk^T_{\vx',A}$}\\
+\textbf{Sampling of $f = [f(x_1)\ldots f(x_n)]$:} \emph{Forward sampling:} $p(f) = p(f_1)p(f_2|f_1)\ldots p(f_n|f_{n-1}\ldots)$.
+\emph{Direct sampling:} $f\sim\mathcal{N}(\mu_f, K_f)$. 
+\textbf{Bayesian hyperparam. selection:} Choose $\hat{\theta}=\argmax_{\theta}p(\rvy|\mX,\theta)$ = $\argmax_{\theta}$\\$\int p(\rvy|\mX,f)p(f|\theta)\dd{f}$ = $\argmax_{\theta}\mathcal{N}(\rvy;0,K_{\mX\mX}(\theta))$.\\
+\textbf{Local GP:} To predict $x^*$, condition only on $\{x:|k(x,x^*)|\geq\pi\}$.
+\textbf{Kernel approximation:} Do $k(x,x')\approx\phi(x)^T\phi(x')$, $\phi(x)\in\mathbb{R}^d$. Then do BLR in $O(d^2n)$.
+\textbf{Random fourier features:} $k$ shift-invariant $\color{black} \implies$ $k(\rvx-\rvx') = \int p(\omega)e^{j\omega^T(\rvx-\rvx')} = \E_{\omega,b}[z_{\omega b}(\rvx)^Tz_{\omega b}(\rvx')] \approx [z_{\omega_1b_1}(\rvx)\ldots z_{\omega_Db_D}(\rvx)]^T[z_{\omega_1b_1}(\rvx')\ldots z_{\omega_Db_D}(\rvx')] = \rvz^T(\rvx)\rvz(\rvx')$ with $\omega\sim p(\omega), b\sim\mathcal{U}([0,2\pi])$, $z_{\omega b}(x) = \sqrt{2}\cos(\omega^T\rvx + b)$. \emph{Th. (unif. approx):} $P(\sup_{\rvx\rvx'}|\rvz^T(\rvx)\rvz(\rvx')-k(\rvx,\rvx')|\geq\epsilon) = O(e^{-D})$.\\
+\textbf{Inducing point methods:} Approx. $p(\rvf^*,\rvf)\approx\int p(\rvf^*|u)p(\rvf|u)\dd{u}\approx\int q(\rvf^*|u)q(\rvf|u)\dd{u}$. \textbf{SoR/FITC:} Approx. covariance of \emph{training conditional} $p(\rvf|u)=\mathcal{N}(\mK_{fu}\mK_{uu}^{-1}\rvu, \mK_{fu}\mK_{uu}^{-1}\mK_{uf})$ with 0 / diag. Complexity $O(|u|^3)$.
+
+\section{Kernels}
+\textbf{Definition:} $K$ kernel \emph{iff} symmetric and every Gram-matrix $K_{AA}$ on K is psd.\\
+\textbf{Valid Kernels:}
+$K(\mathbf{x},\mathbf{x'}){=}\mathbf{x}^T\mathbf{x'}$ (\emph{linear})\\
+$K(\mathbf{x},\mathbf{x'}){=}K_1(\phi(\mathbf{x}), \phi(\mathbf{x'}))\quad$ (\emph{linear + feature map})\\
+$K(\mathbf{x},\mathbf{x'}){=}\mathrm{exp}(-||\mathbf{x}{-}\mathbf{x'}||_1/h)$ (\emph{exponential})\\
+$K(\mathbf{x},\mathbf{x'}){=}\mathrm{exp}(-||\mathbf{x}{-}\mathbf{x'}||_2^2/h^2)$ (\emph{squared exponential/RBF/Gaussian --- h is lengthscale/bandwidth})\\
+$K(\rvx, \rvx') = $Mat\`{e}rn$_{\nu,p}$ \emph{($\lceil\nu\rceil$ times diff., exp. for $\nu=\frac{1}{2}$, Gaussian for $\nu=\infty$, bandwidth $p$)}\\
+$K(\mathbf{x}, \mathbf{x'})=K_1(\mathbf{x}, \mathbf{x'})K_2(\mathbf{x}, \mathbf{x'})$\\
+$K(\mathbf{x},\mathbf{x'})=\alpha K_1(\mathbf{x}, \mathbf{x'})\,\,\forall \alpha\geq0$\\
+$K(\rvx, \rvx') = K_1(\rvx, \rvx') + K_2(\rvx, \rvx')$\\
+$K(\mathbf{x},\mathbf{x'}){=}h(K_1(\mathbf{x}, \mathbf{x'}))\quad h$: poly>0/exp\\
+\textbf{Stationary} if $K(\rvx,\rvx') = f(\rvx - \rvx')$.\\
+\textbf{Isotropic} if $K(\rvx,\rvx') = f(||\rvx - \rvx'||_2)$.
