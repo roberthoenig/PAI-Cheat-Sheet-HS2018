@@ -1,4 +1,3 @@
-\section{Math}\vspace*{-0.8em}
 \textbf{Gaussian:}
 $\mathcal{N}(x;\bm{\mu}, \bm{\Sigma})= |2\pi\bm{\Sigma}|^{-1/2} e^{-\frac{1}{2}(\mathbf{x}-\bm{\mu})^T\bm{\Sigma}^{-1}(\mathbf{x}-\bm{\mu})} $\\
 \textbf{Conditional Gaussian:}
@@ -11,18 +10,22 @@ $\Sigma_{A|B}=\Sigma_{AA}-\Sigma_{AB}\Sigma^{-1}_{BB}\Sigma_{BA}$
 $I(Y;X) = I(X;Y) = H(X) - H(X|Y)$.\\
 $I(X;Y|Z) = H(X|Z) - H(X|Y;Z)$.\\
 $H(X|Y) = \E_{y\sim p(y)}[X|Y=y]$.\\
-If $X\sim\mathcal{N}(\mu, \Sigma)$ then $H(X) = \frac{1}{2}\ln(2\pi e)^d|\Sigma|$.\\
+If $X\sim\mathcal{N}(\mu, \Sigma)$ then $H(X) = \frac{1}{2}\ln((2\pi e)^d|\Sigma|)$.\\
 If $X\sim\mathcal{N}(\mu, \Sigma)$, $Y = X + \epsilon$, $\epsilon\sim\mathcal{N}(0,\sigma^2\mI)$, then $I(X;Y) = \frac{1}{2}\ln|\mI+\sigma^{-2}\Sigma|$.
 
 \textbf{Hoeffding's inequality:}
-I.i.d. $(X_i)\sim X\in[0,C]$ satisfy $P(|\E[X] - \frac{1}{n}\sum_{i\leq n}X_i|>\epsilon) \leq 2\exp(-2n\frac{\epsilon^2}{C^2})$.
+Ind. $(X_i)\in[0,C]$ satisfy $P(|\E[X] - \frac{1}{n}\sum_{i\leq n}X_i|>\epsilon) \leq 2\exp(-2n\frac{\epsilon^2}{C^2})$.
 
-\section{Bayesian Neural Networks}\vspace*{-0.5em}
+\textbf{Geometric sum:} $\sum_{k=0}^{n}r^k = \frac{1-r^{n+1}}{1-r}$.
+
+\textbf{Sc. gr.:} $\nabla_\lambda \E_{\theta\sim q_\lambda}[f(\theta)] = \E_{\theta\sim q_\lambda}[f(\theta)\nabla_\lambda \log q_\lambda(\theta)]$
+
+\section{Bayesian Neural Networks}\vspace*{-0.2em}
 \textbf{Prior:} $p(\theta) = \mathcal{N}(0, \sigma^2\mI)$.\\
 \textbf{Likelihood:} $p(y|\vx, \theta) = \mathcal{N}(\mu_\theta(\vx), \sigma^2_\theta(\vx))$. ($\sigma^2_\theta(\vx)$ non-constant $\color{black}$ iff het.scd. noise).
-\textbf{Predictions:} \mbox{$p(y^*|\mX,\vy,\vx^*) \approx \frac{1}{m}\sum\mathcal{N}(y^*;\mu_{\theta_m}(\vx^*), \sigma_{\theta_m}^2(\vx^*))$ (GMM).} \mbox{$\Var(y^*|\mX,\rvy,x^*) = {\color{red}\E[\Var(y^*|x^*,\theta)]} + {\color{blue}\Var(\E[y^*|x^*,\theta])}$} $\approx {\color{red}\overset{aleatoric}{\frac{1}{m}\sum\sigma^2_{\theta_m}(\vx^*)}} + {\color{blue}\overset{epistemic}{\frac{1}{m}\sum(\mu_{\theta_m}(\vx^*)-\bar{\mu}_{\theta_m}(\vx^*))^2}}$\\
-\textbf{Variational Inference:} Approx. $p(\theta|\rvy) \approx q_\lambda(\theta)$. Minimize $\mathcal{L}(\lambda) = \mathrm{KL}(q_\lambda||p(\cdot|\rvy)) = \E_{\theta\sim q_\lambda}[\log p(\rvy|\theta)] - \mathrm{KL}(q_\lambda||p(\cdot)) = $ \textbf{ELBO}. \textbf{Bayes-by-backprop:} Min. $\mathcal{L}(\lambda)$ with SGD + reparam.\\
-\textbf{MCMC:} Use MALA / SGLD to sample $\theta^{(t)} \sim p(\theta|\rvy)$. \emph{Problem:} Storing many $\theta^{(t)}$ for multiple preds. expensive. \emph{Solution:} Approximate $\theta^{t}_i \sim \mathcal{N}(\textrm{sample mean, var})$.\\
+\textbf{Predictions:}\\\mbox{$p(y^*|\mX,\vy,\vx^*) \approx \frac{1}{m}\sum\mathcal{N}(y^*;\mu_{\theta_j}(\vx^*), \sigma_{\theta_j}^2(\vx^*))$.} \mbox{$\Var(y^*|\mX,\rvy,x^*) = {\color{red}\E\Var(y^*|x^*,\theta)} + {\color{blue}\Var(\E[y^*|x^*,\theta])}$} $\approx {\color{red}\overset{aleatoric}{\frac{1}{m}\sum\sigma^2_{\theta_j}(\vx^*)}} + {\color{blue}\overset{epistemic}{\frac{1}{m}\sum(\mu_{\theta_j}(\vx^*)-\bar{\mu}(\vx^*))^2}}$\\
+\textbf{Variational Inference:} Approx. $p(\theta|\rvy) \approx q_\lambda(\theta)$. Minimize $\mathcal{L}(\lambda) = \mathrm{KL}(q_\lambda||p(\cdot|\rvy)) $= \emph{ELBO}. \textbf{Bayes-by-backprop:} Min. $\mathcal{L}(\lambda)$ with SGD + reparam.\\
+\textbf{MCMC:} Use MALA / SGLD to sample $\theta^{(t)} \sim p(\theta|\rvy)$. \emph{Problem:} Storing many $\theta^{(t)}$ for multiple preds. expensive. \emph{Solution:} Approximate $\theta^{(t)} \sim \mathcal{N}(\textrm{sample mean, var})$, sample $\theta$'s.\\
 \textbf{Dropout as BNN:} Use posterior $q_\lambda(\theta) = \prod q_{\lambda_i}(\theta_i)$ with $q_{\lambda_i}(\theta_i) = p\delta_0(\theta_i) + (1-p)\delta_{\lambda_i}(\theta_i)$.
 \textbf{Probabilistic ensembles:} Compute $\theta^{(t)}$ using MAP with bootstrapping.
 \textbf{Calibration:} Perfectly calibrated iff $\forall p.\,P(\hat{Y}=Y|\hat{P}=p) = p$, where $Y$ is the real class and $\hat{Y}, \hat{P}$ is the NN output. \textbf{Expected Calibration Error:} $\E[|P(\hat{Y}=Y|\hat{P}) - \hat{P}|]$.
@@ -30,7 +33,7 @@ I.i.d. $(X_i)\sim X\in[0,C]$ satisfy $P(|\E[X] - \frac{1}{n}\sum_{i\leq n}X_i|>\
 
 \section{Bayesian Linear Regression $O(d^2n)$}
 \textbf{Prior:} $\rvw\sim\mathcal{N}(\mathbf{0},\Lambda^{-1})$\\
-\textbf{Likelihood:} $\rvy|\mX,\rvw\sim\mathcal{N}(\mX\beta^T,\sigma^2\mathbf{I})$\\
+\textbf{Likelihood:} $\rvy|\mX,\rvw\sim\mathcal{N}(\mX\rvw,\sigma^2\mathbf{I})$\\
 \textbf{Posterior:} $p(\rvw;\mathbf{X},\mathbf{y}) = \mathcal{N}(\rvw; \bar\mu, \bar\Sigma)$ where\\
 $\bar\mu = (\mathbf{X}^T\mathbf{X} +\sigma^2\bm{\Lambda})^{-1}\mathbf{X}^T\mathbf{y}$\\
 \vspace*{-2em}
@@ -42,9 +45,9 @@ $p(y^*|\rvx^*,\mX,\rvy) = \int p(y^*|\rvx^*,\rvw)p(\rvw|\mX,\rvy) d\rvw$
 
 \section{Kalman Filters}
 \textbf{Transition model}:
-\mbox{$P(\rvx_{t+1}|\rvx_t)=\mathcal{N}(\rvx_{t+1};F\rvx_t, \Sigma_x)$}\\
+\mbox{$\rvx_{t+1}=F\rvx_t + \mathcal{N}(0, \Sigma_x)$}\\
 \textbf{Sensor model}:
-$P(\rvy_{t}|\rvx_t)=\mathcal{N}(\rvy_{t};H\rvx_t, \Sigma_y)$\\
+$\rvy_{t} = H\rvx_t + \mathcal{N}(0, \Sigma_y)$\\
 \textbf{Conditioning:} $P(\rvx_t|\rvy_{1\ldots t}) = \mathcal{N}(\rvx_t;\mu_t, \Sigma_t)$\\
 \textbf{Prediction:} $P(\rvx_{t+1}|\rvy_{1\ldots t}) = \mathcal{N}(\rvx_{t+1};F\mu_t, \Sigma_t + \Sigma_x)$\\
 \textbf{Kalman gain}:
@@ -55,7 +58,7 @@ $\Sigma_{t+1}=(I-K_{t+1}H)(F\Sigma_tF^T + \Sigma_x)$\\
 % asdf
 
 \section{Gaussian Processes $O(n^3)$}
-\mbox{\textbf{Def.:} $f: \mathcal{X} \rightarrow \mathbb{R} \sim \mathrm{GP}(\mu, k)$ iff $\forall A\!.\, f_A \sim \mathcal{N}(\mu_A, \mK_{AA})$}\\
+\mbox{\textbf{Def:} $f: \mathcal{X} \veryshortarrow \mathbb{R} \sim \mathrm{GP}(\mu, k)$ iff $\forall A\!.\, f_A \sim \mathcal{N}(\mu_A, \mK_{AA})$}\\
 \textbf{Model:} 
 $\rvy = f_A + \mathbf{\epsilon}$, $\mathbf{\epsilon} \sim \mathcal{N}(0, \sigma^2\mathbb{I})$\\
 \textbf{Prediction:}\\
@@ -66,9 +69,9 @@ $k'(\vx,\vx') = k(\vx,\vx') - \vk_{\vx,A}(\mK_{AA}+\sigma^2\mathbb{I})^{-1}\vk^T
 \textbf{Sampling of $f = [f(x_1)\ldots f(x_n)]$:} \emph{Forward sampling:} $p(f) = p(f_1)p(f_2|f_1)\ldots p(f_n|f_{n-1}\ldots)$.
 \emph{Direct sampling:} $f\sim\mathcal{N}(\mu_f, K_f)$. 
 \textbf{Bayesian hyperparam. selection:} Choose $\hat{\theta}=\argmax_{\theta}p(\rvy|\mX,\theta)$ = $\argmax_{\theta}$\\$\int p(\rvy|\mX,f)p(f|\theta)\dd{f}$ = $\argmax_{\theta}\mathcal{N}(\rvy;0,K_{\mX\mX}(\theta))$.\\
-\textbf{Local GP:} To predict $x^*$, condition only on $\{x:|k(x,x^*)|\geq\pi\}$.
+\textbf{Local GP:} To predict $x^*$, condition only on $\{x:|k(x,x^*)|\geq\tau\}$.
 \textbf{Kernel approximation:} Do $k(x,x')\approx\phi(x)^T\phi(x')$, $\phi(x)\in\mathbb{R}^d$. Then do BLR in $O(d^2n)$.
-\textbf{Random fourier features:} $k$ shift-invariant $\color{black} \implies$ $k(\rvx-\rvx') = \int p(\omega)e^{j\omega^T(\rvx-\rvx')} = \E_{\omega,b}[z_{\omega b}(\rvx)^Tz_{\omega b}(\rvx')] \approx [z_{\omega_1b_1}(\rvx)\ldots z_{\omega_Db_D}(\rvx)]^T[z_{\omega_1b_1}(\rvx')\ldots z_{\omega_Db_D}(\rvx')] = \rvz^T(\rvx)\rvz(\rvx')$ with $\omega\sim p(\omega), b\sim\mathcal{U}([0,2\pi])$, $z_{\omega b}(x) = \sqrt{2}\cos(\omega^T\rvx + b)$. \emph{Th. (unif. approx):} $P(\sup_{\rvx\rvx'}|\rvz^T(\rvx)\rvz(\rvx')-k(\rvx,\rvx')|\geq\epsilon) = O(e^{-D})$.\\
+\textbf{Random fourier features:} $k$ shift-invariant $\color{black} \implies$ $k(\rvx-\rvx') = \int p(\omega)e^{j\omega^T(\rvx-\rvx')} = \E_{\omega,b}[z_{\omega b}(\rvx)^Tz_{\omega b}(\rvx')] \approx [z_{\omega_1b_1}(\rvx)\ldots z_{\omega_Db_D}(\rvx)]^T[z_{\omega_1b_1}(\rvx')\ldots z_{\omega_Db_D}(\rvx')] = \rvz^T(\rvx)\rvz(\rvx')$ with $\omega\sim p(\omega), b\sim\mathcal{U}([0,2\pi])$, $z_{\omega b}(x) = \sqrt{\frac{2}{D}}\cos(\omega^T\rvx + b)$. \emph{Th. (unif. approx):} $P(\sup_{\rvx\rvx'}|\rvz^T(\rvx)\rvz(\rvx')-k(\rvx,\rvx')|\geq\epsilon) = O(e^{-D})$.\\
 \textbf{Inducing point methods:} Approx. $p(\rvf^*,\rvf)\approx\int p(\rvf^*|u)p(\rvf|u)\dd{u}\approx\int q(\rvf^*|u)q(\rvf|u)\dd{u}$. \textbf{SoR/FITC:} Approx. covariance of \emph{training conditional} $p(\rvf|u)=\mathcal{N}(\mK_{fu}\mK_{uu}^{-1}\rvu, \mK_{fu}\mK_{uu}^{-1}\mK_{uf})$ with 0 / diag. Complexity $O(|u|^3)$.
 
 \section{Kernels}

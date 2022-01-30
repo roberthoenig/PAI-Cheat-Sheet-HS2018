@@ -11,14 +11,17 @@
 %\usepackage[lf,minionint]{MinionPro}
 \usepackage{multicol}
 \usepackage{wrapfig}
-\usepackage[top=0mm,bottom=3mm,left=1mm,right=1mm]{geometry}
-\usepackage[framemethod=tikz]{mdframed}
+\usepackage[top=5mm,bottom=5mm,left=5mm,right=2mm]{geometry}\usepackage[framemethod=tikz]{mdframed}
 \usepackage{microtype}
 \usepackage{soul}
 \usepackage{mathtools}
 \usepackage{physics}
 \usepackage{stackengine,amssymb,graphicx,scalerel}
 \input{math_commands.tex}
+
+\newcommand{\veryshortarrow}[1][3pt]{\mathrel{%
+   \hbox{\rule[\dimexpr\fontdimen22\textfont2-.2pt\relax]{#1}{.4pt}}%
+   \mkern-4mu\hbox{\usefont{U}{lasy}{m}{n}\symbol{41}}}}
 
 \makeatletter
 \def\moverlay{\mathpalette\mov@rlay}
@@ -84,7 +87,7 @@ Ines Pereira,~page~\thepage~of~2
 \makeatother
 \setlength{\parindent}{0pt}
 
-
+\setlength{\columnsep}{0.15cm}
 
 \begin{document}
 \small
